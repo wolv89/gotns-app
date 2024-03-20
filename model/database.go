@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 )
@@ -75,7 +76,7 @@ func dbDropTable(name string) {
 
 	fmt.Println("-- Dropping [", name, "] table")
 
-	_, err := db.Exec("DROP TABLE ?", name)
+	_, err := db.Exec(fmt.Sprintf("DROP TABLE '%s'", name))
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to execute query: %v\n", err)
@@ -87,7 +88,7 @@ func dbDropTable(name string) {
 
 func dbTableExists(tablename string) bool {
 
-	query := db.QueryRow("SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?", tablename)
+	query := db.QueryRow(fmt.Sprintf("SELECT name FROM sqlite_master WHERE type = 'table' AND name = '%s'", tablename))
 	foundname := ""
 
 	if query.Err() != nil {
@@ -102,6 +103,11 @@ func dbTableExists(tablename string) bool {
 
 	return false
 
+}
+
+
+func dbNow() string {
+	return time.Now().Format(time.DateTime)
 }
 
 

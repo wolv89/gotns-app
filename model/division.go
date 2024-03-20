@@ -5,6 +5,7 @@ type Division struct {
 	id int
 	event int
 	name string
+	path string
 	active bool
 	seq int
 	updated string
@@ -19,6 +20,7 @@ func divisionInit() {
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			event INTEGER,
 			name TEXT,
+			path TEXT,
 			active BOOL,
 			seq INTEGER,
 			updated TEXT,

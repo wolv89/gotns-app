@@ -5,7 +5,9 @@ import (
 	"net/http"
 
 	_ "github.com/tursodatabase/libsql-client-go/libsql"
+
 	"github.com/wolv89/gotnsapp/model"
+
 )
 
 
@@ -36,8 +38,15 @@ func main() {
 	})
 
 	http.HandleFunc("/event/create", func(w http.ResponseWriter, req *http.Request){
-		model.EventCreate("French Open", "Clay boy")
-		fmt.Fprintf(w, "Create event: []")
+		q := req.URL.Query()
+		eventName := q.Get("name")
+
+		res, err := model.EventCreate(eventName, "Clay boy")
+		if !res {
+			fmt.Fprintf(w, fmt.Sprintf("Unable to create event: [%s] {%s}", eventName, err))
+		} else {
+			fmt.Fprintf(w, fmt.Sprintf("Create event: [%s]", eventName))
+		}
 	})
 
 	http.HandleFunc("/event/list", func(w http.ResponseWriter, req *http.Request){
