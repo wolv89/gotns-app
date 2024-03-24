@@ -9,12 +9,12 @@ import (
 
 
 type Event struct {
-	id int
-	name string
-	path string
-	description string
-	active bool
-	updated string
+	Id int				`json:"id"`
+	Name string			`json:"name"`
+	Path string			`json:"path"`
+	Description string	`json:"description"`
+	Active bool			`json:"active"`
+	Updated string		`json:"updated"`
 }
 
 

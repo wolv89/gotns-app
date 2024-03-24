@@ -2,14 +2,14 @@ package model
 
 
 type Division struct {
-	id int
-	event int
-	name string
-	path string
-	active bool
-	seq int
-	updated string
-	class int
+	Id int			`json:"id"`
+	Event int		`json:"event"`
+	Name string		`json:"name"`
+	Path string		`json:"path"`
+	Active bool		`json:"active"`
+	Seq int			`json:"seq"`
+	Updated string	`json:"updated"`
+	Class int		`json:"class"`
 }
 
 

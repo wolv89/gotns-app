@@ -2,9 +2,9 @@ package model
 
 
 type Player struct {
-	id int
-	firstname string
-	lastname string
+	Id int				`json:"id"`
+	FirstName string	`json:"firstname"`
+	LastName string		`json:"lastname"`
 }
 
 

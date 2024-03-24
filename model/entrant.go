@@ -2,11 +2,11 @@ package model
 
 
 type Entrant struct {
-	id int
-	player1 int
-	player2 int
-	isteam bool
-	seed int
+	Id int			`json:"id"`
+	Player1 int		`json:"player1"`
+	Player2 int		`json:"player2"`
+	IsTeam bool		`json:"isteam"`
+	Seed int		`json:"seed"`
 }
 
 

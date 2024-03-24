@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"os"
 	"time"
-
-	"github.com/joho/godotenv"
 )
 
 var db *sql.DB
@@ -31,14 +29,9 @@ func DatabaseNuke() {
 
 func DatabaseInit() {
 
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to load local env %s", err)
-		os.Exit(1)
-	}
-
 	dburl := fmt.Sprintf("libsql://%v.turso.io?authToken=%v", os.Getenv("DB_NAME"), os.Getenv("DB_KEY"))
 
+	var err error
 	db, err = sql.Open("libsql", dburl)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to open db %s: %s", dburl, err)
