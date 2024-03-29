@@ -1,24 +1,22 @@
 package router
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/wolv89/gotnsapp/handler"
-	_ "github.com/wolv89/gotnsapp/model"
+	"github.com/wolv89/gotnsapp/util"
 )
 
 func LoadPublicRoutes(router *http.ServeMux) {
 
 	router.HandleFunc("/", func(w http.ResponseWriter, req *http.Request){
-		fmt.Fprintf(w, "GOTNS")
+		util.HttpBadRequest(w, "")
 	})
 
 	router.HandleFunc("/login", handler.Login)
 
-	router.HandleFunc("/public", func(w http.ResponseWriter, req *http.Request){
-		fmt.Fprintf(w, "Public route")
-	})
+	router.HandleFunc("/events", handler.GetEvents)
+
 
 	/*
 

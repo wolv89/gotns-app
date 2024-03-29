@@ -8,6 +8,6 @@ import (
 
 func LoadAdminRoutes(router *http.ServeMux) {
 
-	router.HandleFunc("GET /logout", handler.Logout)
+	router.HandleFunc("/logout", handler.Logout)
 
 }

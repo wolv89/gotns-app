@@ -1,6 +1,7 @@
 package model
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -68,5 +69,47 @@ func EventCreate(name string, desc string) (bool, string) {
 	}
 
 	return true, ""
+
+}
+
+
+func GetActiveEvents() ([]Event, error) {
+
+	query, err := db.Query(`
+		SELECT *
+		FROM event
+		WHERE active = TRUE
+		ORDER BY updated DESC
+	`)
+
+	defer query.Close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	var list []Event
+
+	for query.Next() {
+
+		var event Event
+
+		if qerr := query.Scan(&event.Id, &event.Name, &event.Path, &event.Description, &event.Active, &event.Updated); qerr != nil {
+			return nil, qerr
+		}
+
+		list = append(list, event)
+
+	}
+
+	if len(list) <= 0 {
+		return nil, errors.New("none")
+	}
+
+	if err = query.Err(); err != nil {
+		return nil, err
+	}
+
+	return list, nil
 
 }
