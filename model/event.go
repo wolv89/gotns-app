@@ -35,7 +35,7 @@ func eventInit() {
 }
 
 
-func EventCreate(name string, desc string) (bool, string) {
+func EventCreate(name string, desc string, state bool) (bool, string) {
 
 	if name == "" {
 		return false, "Bad request"
@@ -61,14 +61,14 @@ func EventCreate(name string, desc string) (bool, string) {
 			(name,path,description,active,updated)
 		VALUES 
 			(?,?,?,?,?)`,
-		name, path, desc, true, dbNow())
+		name, path, desc, state, dbNow())
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to execute query: %v\n", err)
 		return false, err.Error()
 	}
 
-	return true, ""
+	return true, path
 
 }
 
@@ -80,6 +80,47 @@ func GetActiveEvents() ([]Event, error) {
 		FROM event
 		WHERE active = TRUE
 		ORDER BY updated DESC
+	`)
+
+	defer query.Close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	var list []Event
+
+	for query.Next() {
+
+		var event Event
+
+		if qerr := query.Scan(&event.Id, &event.Name, &event.Path, &event.Description, &event.Active, &event.Updated); qerr != nil {
+			return nil, qerr
+		}
+
+		list = append(list, event)
+
+	}
+
+	if len(list) <= 0 {
+		return nil, errors.New("none")
+	}
+
+	if err = query.Err(); err != nil {
+		return nil, err
+	}
+
+	return list, nil
+
+}
+
+
+func GetAllEvents() ([]Event, error) {
+
+	query, err := db.Query(`
+		SELECT *
+		FROM event
+		ORDER BY active DESC, updated DESC
 	`)
 
 	defer query.Close()

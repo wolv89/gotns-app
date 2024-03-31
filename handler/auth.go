@@ -10,6 +10,10 @@ import (
 )
 
 
+func Ready(w http.ResponseWriter, req *http.Request) {
+	fmt.Fprintf(w, "GO")
+}
+
 
 
 func Login(w http.ResponseWriter, req *http.Request) {

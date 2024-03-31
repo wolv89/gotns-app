@@ -1,36 +1,71 @@
 package middleware
 
-import "net/http"
+import (
+	"encoding/base64"
+	"net/http"
+	"strings"
+	"time"
+	"slices"
+
+	"github.com/wolv89/gotnsapp/util"
+)
 
 
 
 func IsAuthenticated(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		/*
-		authorization := r.Header.Get("Authorization")
-
-		// Check that the header begins with a prefix of Bearer
-		if !strings.HasPrefix(authorization, "Bearer ") {
-			writeUnauthed(w)
+		if ! IsAdmin(r) {
+			util.HttpUnauthorized(w)
 			return
 		}
-
-		// Pull out the token
-		encodedToken := strings.TrimPrefix(authorization, "Bearer ")
-
-		// Decode the token from base 64
-		token, err := base64.StdEncoding.DecodeString(encodedToken)
-		if err != nil {
-			writeUnauthed(w)
-			return
-		}
-
-		// We're just assuming a valid base64 token is a valid user id.
-		userID := string(token)
-		fmt.Println("userID:", userID)
-		*/
 
 		next.ServeHTTP(w, r)
+
 	})
 }
+
+
+
+func IsAdmin(r *http.Request) bool {
+
+	authorization := r.Header.Get("Authorization")
+
+	if !strings.HasPrefix(authorization, "Bearer ") {
+		return false
+	}
+
+	encodedToken := strings.TrimPrefix(authorization, "Bearer ")
+
+	token, err := base64.StdEncoding.DecodeString(encodedToken)
+	if err != nil {
+		return false
+	}
+
+	isValid := false
+	now := time.Now().Unix()
+	oldSessions := make([]int, 0, len(util.Sessions))
+
+	for s, sess := range util.Sessions {
+		if sess.Expiry < now {
+			oldSessions = append(oldSessions, s)
+			continue
+		}
+		if sess.Token == string(token) {
+			isValid = true
+			break
+		}
+	}
+
+	for oldSession := range oldSessions {
+		util.Sessions = slices.Delete(util.Sessions, oldSession, 1)
+	}
+
+	if !isValid {
+		return false
+	}
+
+	return true
+
+}
+

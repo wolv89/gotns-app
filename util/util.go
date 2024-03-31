@@ -13,8 +13,8 @@ func StringToPath(s string) string {
 	rechars := regexp.MustCompile(`[^ a-z0-9]`)
 
 	s = respacing.ReplaceAllString(s, " ")
-	s = strings.TrimSpace(s)
 	s = rechars.ReplaceAllString(s, "")
+	s = strings.TrimSpace(s)
 	s = strings.ReplaceAll(s, " ", "-")
 
 	return s

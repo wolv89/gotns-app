@@ -1,6 +1,33 @@
 package util
 
-import "net/http"
+import (
+	"encoding/json"
+	"net/http"
+)
+
+
+type SimpleRes struct {
+	Result 		bool 	`json:"result"`
+	Response 	string 	`json:"response"`
+	Return 		string 	`json:"return"`
+}
+
+
+func HttpJ(w http.ResponseWriter, res bool, resp string, ret string) {
+
+	sr := SimpleRes{res, resp, ret}
+
+	output, err := json.Marshal(sr)
+
+	if err != nil {
+		HttpBadRequest(w, "")
+		return
+	}
+
+	HttpSuccess(w, string(output))
+
+}
+
 
 func HttpSuccess(w http.ResponseWriter, s string) {
 	w.WriteHeader(http.StatusOK)
