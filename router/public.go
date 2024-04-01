@@ -21,4 +21,7 @@ func LoadPublicRoutes(router *http.ServeMux) {
 	router.HandleFunc("/divisions/{eventid}", handler.GetDivisions)
 	router.HandleFunc("/event/{eventid}/division/{divisionname}", handler.GetDivision)
 
+	// router.HandleFunc("/toolbox/dbnuke", handler.ToolboxNuke)
+	// router.HandleFunc("/toolbox/dblaunch", handler.ToolboxLaunch)
+
 }

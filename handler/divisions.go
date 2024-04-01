@@ -3,7 +3,6 @@ package handler
 import (
 	"encoding/json"
 	"io"
-	_ "io"
 	"net/http"
 	"strconv"
 
