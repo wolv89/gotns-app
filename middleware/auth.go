@@ -42,6 +42,11 @@ func IsAdmin(r *http.Request) bool {
 		return false
 	}
 
+	// Dev hack -- remove for prod!
+	if string(token) == "localhost" {
+		return true
+	}
+
 	isValid := false
 	now := time.Now().Unix()
 	oldSessions := make([]int, 0, len(util.Sessions))

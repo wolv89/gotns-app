@@ -13,4 +13,6 @@ func LoadAdminRoutes(router *http.ServeMux) {
 
 	router.HandleFunc("POST /event/new", handler.CreateEvent)
 
+	router.HandleFunc("POST /event/{event}/division/new", handler.CreateDivision)
+
 }

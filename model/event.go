@@ -154,3 +154,48 @@ func GetAllEvents() ([]Event, error) {
 	return list, nil
 
 }
+
+
+func GetEventByPath(path string) (Event, error) {
+
+	var event Event
+
+	if len(path) <= 0 {
+		return event, errors.New("No path provided")
+	}
+
+	query := db.QueryRow(fmt.Sprintf(`SELECT * FROM event WHERE path = "%s"`, path))
+
+	if query.Err() != nil {
+		fmt.Println(query.Err().Error())
+		return event, query.Err()
+	}
+
+	if qerr := query.Scan(&event.Id, &event.Name, &event.Path, &event.Description, &event.Active, &event.Updated); qerr != nil {
+		return event, qerr
+	}
+
+	return event, nil
+
+}
+
+
+func GetEventStatus(id int) bool {
+
+	if id <= 0 {
+		return false
+	}
+
+	query := db.QueryRow(fmt.Sprintf(`SELECT active FROM event WHERE id = %d`, id))
+
+	if query.Err() != nil {
+		fmt.Println(query.Err().Error())
+		return false
+	}
+
+	var status bool
+	query.Scan(&status)
+
+	return status
+
+}

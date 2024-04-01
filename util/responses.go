@@ -6,16 +6,17 @@ import (
 )
 
 
-type SimpleRes struct {
+type SimpleResponse struct {
 	Result 		bool 	`json:"result"`
 	Response 	string 	`json:"response"`
 	Return 		string 	`json:"return"`
+	Packet 		any 	`json:"packet"`
 }
 
 
-func HttpJ(w http.ResponseWriter, res bool, resp string, ret string) {
+func HttpJ(w http.ResponseWriter, res bool, resp string, ret string, pac any) {
 
-	sr := SimpleRes{res, resp, ret}
+	sr := SimpleResponse{res, resp, ret, pac}
 
 	output, err := json.Marshal(sr)
 

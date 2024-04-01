@@ -44,7 +44,9 @@ func GetEvents(w http.ResponseWriter, req *http.Request) {
 
 func CreateEvent(w http.ResponseWriter, req *http.Request) {
 
+	defer req.Body.Close()
 	data, err := io.ReadAll(req.Body)
+
 	if err != nil {
 		util.HttpBadRequest(w, "Bad request")
 		return
@@ -68,9 +70,37 @@ func CreateEvent(w http.ResponseWriter, req *http.Request) {
 	result, response := model.EventCreate(newEvent.Name, newEvent.Desc, newEvent.State)
 
 	if result {
-		util.HttpJ(w, result, "", response)
+		util.HttpJ(w, result, "", response, nil)
 	} else {
-		util.HttpJ(w, result, response, "")
+		util.HttpJ(w, result, response, "", nil)
 	}
+
+}
+
+
+func GetEvent(w http.ResponseWriter, req *http.Request) {
+
+	path := req.PathValue("eventname")
+
+	if len(path) <= 0 {
+		util.HttpBadRequest(w, "No path provided")
+		return
+	}
+
+	event, err := model.GetEventByPath(path)
+
+	if err != nil {
+		util.HttpJ(w, false, err.Error(), "", nil)
+		return
+	}
+
+	if event.Active != true {
+		if middleware.IsAdmin(req) != true {
+			util.HttpJ(w, false, "Event not found", "", nil)
+			return
+		}
+	}
+
+	util.HttpJ(w, true, "", "", event)
 
 }
