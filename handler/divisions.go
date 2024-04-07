@@ -71,7 +71,8 @@ func CreateDivision(w http.ResponseWriter, req *http.Request) {
 	type NewDivision struct {
 		Name 	string 	`json:"name"`
 		State 	bool 	`json:"state"`
-		Class 	int 	`json:"class"`
+		Style 	int 	`json:"style"`
+		Teams 	bool 	`json:"teams"`
 	}
 
 	var newDivision NewDivision
@@ -83,7 +84,7 @@ func CreateDivision(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	result, response := model.DivisionCreate(event, newDivision.Name, newDivision.State, newDivision.Class)
+	result, response := model.DivisionCreate(event, newDivision.Name, newDivision.State, newDivision.Style, newDivision.Teams)
 
 	if result {
 		util.HttpJ(w, result, "", response, nil)

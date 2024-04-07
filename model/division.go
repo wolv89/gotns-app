@@ -18,7 +18,8 @@ type Division struct {
 	Active bool		`json:"active"`
 	Seq int			`json:"seq"`
 	Updated string	`json:"updated"`
-	Class int		`json:"class"`
+	Style int		`json:"style"`
+	Teams bool		`json:"teams"`
 }
 
 
@@ -33,7 +34,8 @@ func divisionInit() {
 			active BOOL,
 			seq INTEGER,
 			updated TEXT,
-			class INTEGER
+			style INTEGER,
+			teams BOOL
 		)
 	`))
 
@@ -41,7 +43,7 @@ func divisionInit() {
 
 
 
-func DivisionCreate(event int, name string, state bool, class int) (bool, string) {
+func DivisionCreate(event int, name string, state bool, style int, teams bool) (bool, string) {
 
 	if name == "" {
 		return false, "Bad request"
@@ -81,10 +83,10 @@ func DivisionCreate(event int, name string, state bool, class int) (bool, string
 
 	_, err := db.Query(`
 		INSERT INTO division
-			(event,name,path,active,seq,updated,class)
+			(event,name,path,active,seq,updated,style,teams)
 		VALUES 
-			(?,?,?,?,?,?,?)`,
-		event, name, path, state, seq, dbNow(), class)
+			(?,?,?,?,?,?,?,?)`,
+		event, name, path, state, seq, dbNow(), style, teams)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to execute query: %v\n", err)
@@ -118,7 +120,7 @@ func GetActiveDivisions(event int) ([]Division, error) {
 
 		var div Division
 
-		if qerr := query.Scan(&div.Id, &div.Event, &div.Name, &div.Path, &div.Active, &div.Seq, &div.Updated, &div.Class); qerr != nil {
+		if qerr := query.Scan(&div.Id, &div.Event, &div.Name, &div.Path, &div.Active, &div.Seq, &div.Updated, &div.Style, &div.Teams); qerr != nil {
 			return nil, qerr
 		}
 
@@ -160,7 +162,7 @@ func GetAllDivisions(event int) ([]Division, error) {
 
 		var div Division
 
-		if qerr := query.Scan(&div.Id, &div.Event, &div.Name, &div.Path, &div.Active, &div.Seq, &div.Updated, &div.Class); qerr != nil {
+		if qerr := query.Scan(&div.Id, &div.Event, &div.Name, &div.Path, &div.Active, &div.Seq, &div.Updated, &div.Style, &div.Teams); qerr != nil {
 			return nil, qerr
 		}
 
@@ -196,7 +198,7 @@ func GetDivisionByPath(event int, path string) (Division, error) {
 		return div, query.Err()
 	}
 
-	if qerr := query.Scan(&div.Id, &div.Event, &div.Name, &div.Path, &div.Active, &div.Seq, &div.Updated, &div.Class); qerr != nil {
+	if qerr := query.Scan(&div.Id, &div.Event, &div.Name, &div.Path, &div.Active, &div.Seq, &div.Updated, &div.Style, &div.Teams); qerr != nil {
 		return div, qerr
 	}
 

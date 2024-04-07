@@ -11,7 +11,7 @@ type Entrant struct {
 	Division int	`json:"division"`
 	Player1 int		`json:"player1"`
 	Player2 int		`json:"player2"`
-	IsTeam bool		`json:"isteam"`
+	Team bool		`json:"team"`
 	Seed int		`json:"seed"`
 }
 
@@ -24,7 +24,7 @@ func entrantInit() {
 			division INTEGER,
 			player1 INTEGER,
 			player2 INTEGER,
-			isteam BOOL,
+			team BOOL,
 			seed INTEGER
 		)
 	`))
@@ -49,7 +49,7 @@ func GetSingleEntrant(div int, p1 int) (Entrant, error) {
 		return entrant, query.Err()
 	}
 
-	query.Scan(&entrant.Id, &entrant.Division, &entrant.Player1, &entrant.Player2, &entrant.IsTeam, &entrant.Seed)
+	query.Scan(&entrant.Id, &entrant.Division, &entrant.Player1, &entrant.Player2, &entrant.Team, &entrant.Seed)
 
 	if entrant.Id <= 0 {
 		return entrant, errors.New("Not found")
@@ -77,7 +77,7 @@ func GetTeamEntrant(div int, p1 int, p2 int) (Entrant, error) {
 		return entrant, query.Err()
 	}
 
-	query.Scan(&entrant.Id, &entrant.Division, &entrant.Player1, &entrant.Player2, &entrant.IsTeam, &entrant.Seed)
+	query.Scan(&entrant.Id, &entrant.Division, &entrant.Player1, &entrant.Player2, &entrant.Team, &entrant.Seed)
 
 	if entrant.Id <= 0 {
 		return entrant, errors.New("Not found")
@@ -100,7 +100,7 @@ func CreateSingleEntrant(div int, p1 int, seed int) (bool, int) {
 
 	_, err = db.Query(`
 		INSERT INTO entrant
-			(division,player1,player2,isteam,seed)
+			(division,player1,player2,team,seed)
 		VALUES
 			(?,?,?,?,?)`,
 			div, p1, 0, false, seed)
@@ -127,7 +127,7 @@ func CreateTeamEntrant(div int, p1 int, p2 int, seed int) (bool, int) {
 
 	_, err = db.Query(`
 		INSERT INTO entrant
-			(division,player1,player2,isteam,seed)
+			(division,player1,player2,team,seed)
 		VALUES
 			(?,?,?,?,?)`,
 			div, p1, p2, true, seed)
