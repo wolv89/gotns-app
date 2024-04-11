@@ -63,7 +63,7 @@ func PlayerCreate(fname string, lname string) (bool, int) {
 
 	player, err := GetPlayerByName(fname, lname)
 
-	if err != nil {
+	if err != nil && err.Error() != "Not found" {
 		return false, 0
 	}
 

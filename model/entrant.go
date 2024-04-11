@@ -141,3 +141,77 @@ func CreateTeamEntrant(div int, p1 int, p2 int, seed int) (bool, int) {
 	return true, entrant.Id
 
 }
+
+
+
+func CountEntrants(div int) int {
+
+	if div <= 0 {
+		return -1
+	}
+
+	sizequery := db.QueryRow(fmt.Sprintf(`
+		SELECT COUNT(id) FROM entrant
+		WHERE division = %d
+		`, div))
+
+	if sizequery.Err() != nil {
+		return -1
+	}
+
+	var entrantCount int
+	sizequery.Scan(&entrantCount)
+
+	return entrantCount
+
+}
+
+
+
+
+func GetEntrants(div int) ([]Entrant, error) {
+
+	var list []Entrant
+
+	if div <= 0 {
+		return list, errors.New("Bad request")
+	}
+
+	entrantCount := CountEntrants(div)
+
+	if entrantCount == 0 {
+		return list, errors.New("None")
+	} else if entrantCount < 0 {
+		return list, errors.New("Query error")
+	}
+
+	listquery, err := db.Query(fmt.Sprintf(`
+		SELECT *
+		FROM entrant
+		WHERE division = %d
+		ORDER BY id ASC
+	`, div))
+
+	defer listquery.Close()
+
+	if err != nil {
+		return list, err
+	}
+
+	list = make([]Entrant, entrantCount)
+
+	for listquery.Next() {
+
+		var entrant Entrant
+
+		if qerr := listquery.Scan(&entrant); qerr != nil {
+			return list, qerr
+		}
+
+		list = append(list, entrant)
+
+	}
+
+	return list, nil
+
+}

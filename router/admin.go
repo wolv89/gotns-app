@@ -18,4 +18,8 @@ func LoadAdminRoutes(router *http.ServeMux) {
 	router.HandleFunc("/players", handler.GetPlayers)
 	router.HandleFunc("POST /player/new", handler.CreatePlayer)
 
+	router.HandleFunc("/division/{divisionid}/status", handler.GetDivisionStatus)
+	router.HandleFunc("/division/{divisionid}/entrants", handler.GetEntrants)
+	router.HandleFunc("POST /division/{divisionid}/entrants/new", handler.CreateEntrants)
+
 }

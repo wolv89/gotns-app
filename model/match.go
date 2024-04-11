@@ -1,6 +1,11 @@
 package model
 
 
+import (
+	"fmt"
+)
+
+
 type Match struct {
 	Id int			`json:"id"`
 	Division int	`json:"division"`
@@ -33,5 +38,33 @@ func matchInit() {
 			winner INTEGER
 		)
 	`))
+
+}
+
+
+
+
+
+
+
+func CountMatches(div int) int {
+
+	if div <= 0 {
+		return -1
+	}
+
+	sizequery := db.QueryRow(fmt.Sprintf(`
+		SELECT COUNT(id) FROM match
+		WHERE division = %d
+		`, div))
+
+	if sizequery.Err() != nil {
+		return -1
+	}
+
+	var matchCount int
+	sizequery.Scan(&matchCount)
+
+	return matchCount
 
 }
