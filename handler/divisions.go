@@ -130,3 +130,33 @@ func GetDivision(w http.ResponseWriter, req *http.Request) {
 	util.HttpJ(w, true, "", "", division)
 
 }
+
+
+func GetDivisionStatus(w http.ResponseWriter, req *http.Request) {
+
+	div, err := strconv.Atoi(req.PathValue("divisionid"))
+
+	if err != nil || div <= 0 {
+		util.HttpBadRequest(w, "Bad request")
+		return
+	}
+
+	status := model.DivisionStatus{Entrants: false, Matches: false}
+
+	entrantCount := model.CountEntrants(div)
+	matchCount := model.CountMatches(div)
+
+	// Handle -1 errors ?
+
+	if entrantCount > 0 {
+		status.Entrants = true
+	}
+
+	if matchCount > 0 {
+		status.Matches = true
+	}
+
+	util.HttpJ(w, true, "", "", status)
+
+}
+

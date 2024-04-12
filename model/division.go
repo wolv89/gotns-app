@@ -23,6 +23,12 @@ type Division struct {
 }
 
 
+type DivisionStatus struct {
+	Entrants bool 	`json:"entrants"`
+	Matches bool 	`json:"matches"`
+}
+
+
 func divisionInit() {
 
 	dbCreateTable("division", string(`
