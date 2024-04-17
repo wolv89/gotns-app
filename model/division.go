@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/wolv89/gotnsapp/util"
 )
@@ -209,5 +210,29 @@ func GetDivisionByPath(event int, path string) (Division, error) {
 	}
 
 	return div, nil
+
+}
+
+
+
+func UpdateDivision(div int, field string, value string) error {
+
+	switch field {
+		case "active":
+			status, err := strconv.Atoi(value)
+			if err != nil {
+				return err
+			}
+
+			query, err := db.Query(fmt.Sprintf(`
+				UPDATE division
+				SET active = %v
+				WHERE id = %d
+			`, status, div))
+
+			defer query.Close()
+	}
+
+	return nil
 
 }

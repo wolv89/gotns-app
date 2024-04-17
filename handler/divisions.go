@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 	"github.com/wolv89/gotnsapp/middleware"
 	"github.com/wolv89/gotnsapp/model"
 	"github.com/wolv89/gotnsapp/util"
+	"github.com/wolv89/gotnsapp/view"
 )
 
 func GetDivisions(w http.ResponseWriter, req *http.Request) {
@@ -160,3 +162,66 @@ func GetDivisionStatus(w http.ResponseWriter, req *http.Request) {
 
 }
 
+
+func UpdateDivision(w http.ResponseWriter, req *http.Request) {
+
+	div, err := strconv.Atoi(req.PathValue("divisionid"))
+
+	if err != nil || div <= 0 {
+		util.HttpBadRequest(w, "Bad request")
+		return
+	}
+
+	defer req.Body.Close()
+	var data []byte
+	data, err = io.ReadAll(req.Body)
+
+	if err != nil {
+		util.HttpBadRequest(w, "Bad request")
+		return
+	}
+
+	type DivisionUpdate struct {
+		Field 	string 	`json:"field"`
+		Value 	string 	`json:"value"`
+	}
+
+	var divisionUpdates []DivisionUpdate
+
+	err = json.Unmarshal(data, &divisionUpdates)
+
+	if err != nil {
+		util.HttpServerError(w, "Parse error")
+		return
+	}
+
+	var uerr error
+
+	for _, update := range divisionUpdates {
+		uerr = model.UpdateDivision(div, update.Field, update.Value)
+		if uerr != nil {
+			util.HttpServerError(w, "Unable to apply update: " + update.Field)
+			return
+		}
+	}
+
+	util.HttpSuccess(w, "Woohoo")
+
+}
+
+
+func GetDivisionView(w http.ResponseWriter, req *http.Request) {
+
+	div, err := strconv.Atoi(req.PathValue("divisionid"))
+
+	if err != nil || div <= 0 {
+		util.HttpBadRequest(w, "Bad request")
+		return
+	}
+
+	var matches []model.Match
+
+	view := view.MatchesView(matches)
+	view.Render(context.Background(), w)
+
+}
