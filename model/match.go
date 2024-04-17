@@ -1,9 +1,20 @@
 package model
 
-
 import (
+	"errors"
 	"fmt"
 )
+
+
+type MatchStatus int
+
+const (
+	MatchBlank MatchStatus = iota
+	MatchReady
+	MatchPlaying
+	MatchFinished
+)
+
 
 
 type Match struct {
@@ -42,7 +53,26 @@ func matchInit() {
 }
 
 
+func MatchCreate(div int, e1 int, e2 int, seq int, status MatchStatus) error {
 
+	if div <= 0 {
+		return errors.New("Bad request")
+	}
+
+	_, err := db.Query(`
+		INSERT INTO match
+			(division,entrant1,entrant2,score,notes,seq,start,updated,status,winner)
+		VALUES 
+			(?,?,?,?,?,?,?,?,?,?)`,
+		div, e1, e2, "", "", seq, "", dbNow(), status, 0)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
 
 
 

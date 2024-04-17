@@ -198,13 +198,13 @@ func GetEntrants(div int) ([]Entrant, error) {
 		return list, err
 	}
 
-	list = make([]Entrant, entrantCount)
+	list = make([]Entrant, 0, entrantCount)
 
 	for listquery.Next() {
 
 		var entrant Entrant
 
-		if qerr := listquery.Scan(&entrant); qerr != nil {
+		if qerr := listquery.Scan(&entrant.Id, &entrant.Division, &entrant.Player1, &entrant.Player2, &entrant.Team, &entrant.Seed); qerr != nil {
 			return list, qerr
 		}
 
