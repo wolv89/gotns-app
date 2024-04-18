@@ -3,6 +3,7 @@ package model
 import (
 	"errors"
 	"fmt"
+	"strings"
 )
 
 
@@ -13,6 +14,19 @@ type Entrant struct {
 	Player2 int		`json:"player2"`
 	Team bool		`json:"team"`
 	Seed int		`json:"seed"`
+}
+
+
+type NamedEntrant struct {
+	Id int
+	P1Id int
+	P1FirstName string
+	P1LastName string
+	P2Id int
+	P2FirstName string
+	P2LastName string
+	Team bool
+	Seed int
 }
 
 
@@ -213,5 +227,51 @@ func GetEntrants(div int) ([]Entrant, error) {
 	}
 
 	return list, nil
+
+}
+
+
+
+func GetEntrantName(id int) string {
+
+	if id <= 0 {
+		return "---"
+	}
+
+	var entrant NamedEntrant
+
+	query := db.QueryRow(fmt.Sprintf(`
+		SELECT e.id, e.team, e.seed, p1.id, p1.firstname, p1.lastname, p2.id, p2.firstname, p2.lastname
+		FROM entrant AS e
+		LEFT JOIN player AS p1
+			ON p1.id = e.player1
+		LEFT JOIN player AS p2
+			ON p2.id = e.player2
+		WHERE e.id = %d
+		`, id))
+
+	if query.Err() != nil {
+		return "Unknown player(s)"
+	}
+
+	query.Scan(&entrant.Id, &entrant.Team, &entrant.Seed, &entrant.P1Id, &entrant.P1FirstName, &entrant.P1LastName, &entrant.P2Id, &entrant.P2FirstName, &entrant.P2LastName)
+
+	if entrant.Id != id {
+		return "Unknown player(s)"
+	}
+
+	var name strings.Builder
+
+	if entrant.Seed > 0 {
+		name.WriteString(fmt.Sprintf("<span class=\"seed\">%d</span>", entrant.Seed))
+	}
+
+	name.WriteString(fmt.Sprintf("<span class=\"player\">%s. %s</span>", entrant.P1FirstName[:1], entrant.P1LastName))
+
+	if entrant.Team {
+		name.WriteString(fmt.Sprintf("<span class=\"player\">%s. %s</span>", entrant.P2FirstName[:1], entrant.P2LastName))
+	}
+
+	return name.String()
 
 }

@@ -1,13 +1,16 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"io"
+	"math"
 	"net/http"
 	"strconv"
 
 	"github.com/wolv89/gotnsapp/model"
 	"github.com/wolv89/gotnsapp/util"
+	"github.com/wolv89/gotnsapp/view"
 )
 
 
@@ -61,8 +64,8 @@ func CreateMatches(w http.ResponseWriter, req *http.Request) {
 	// Load round 1 matches
 	for _, match := range newMatches {
 
-		seq++
 		err = model.MatchCreate(division, match.Entrant1, match.Entrant2, seq, model.MatchReady)
+		seq++
 
 		if err != nil {
 			util.HttpServerError(w, "Could not create match")
@@ -72,5 +75,53 @@ func CreateMatches(w http.ResponseWriter, req *http.Request) {
 	}
 
 	util.HttpSuccess(w, "Done")
+
+}
+
+
+
+
+
+func GetMatchesView(w http.ResponseWriter, req *http.Request) {
+
+	div, err := strconv.Atoi(req.PathValue("divisionid"))
+
+	if err != nil || div <= 0 {
+		util.HttpBadRequest(w, "Bad request")
+		return
+	}
+
+	var matches []model.Match
+	matches, err = model.GetMatches(div)
+
+	if err != nil {
+		util.HttpBadRequest(w, "Bad request")
+		return
+	}
+
+	mcount := len(matches)							// Match count
+	dcount := (mcount + 1) / 2						// Draw count
+	rcount := int(math.Log2(float64(dcount))) + 1	// Rounds count
+
+	rounds := make([][]int, rcount)
+	rm := dcount
+	ri, min, max := 0, 0, 0
+
+	for r := 0; r < rcount; r++ {
+
+		rounds[r] = make([]int, rm)
+		min = rm - 1
+		max = min + rm
+
+		for ri = min; ri < max; ri++ {
+			rounds[r][ri - min] = ri
+		}
+
+		rm /= 2
+
+	}
+
+	view := view.MatchesView(matches, rounds)
+	view.Render(context.Background(), w)
 
 }

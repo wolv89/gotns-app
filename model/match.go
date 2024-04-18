@@ -3,6 +3,7 @@ package model
 import (
 	"errors"
 	"fmt"
+	"math"
 )
 
 
@@ -96,5 +97,111 @@ func CountMatches(div int) int {
 	sizequery.Scan(&matchCount)
 
 	return matchCount
+
+}
+
+
+
+
+func GetMatches(div int) ([]Match, error) {
+
+	var matches []Match
+
+	if div <= 0 {
+		return matches, errors.New("Invalid division ID")
+	}
+
+	query, err := db.Query(fmt.Sprintf(`
+		SELECT *
+		FROM match
+		WHERE division = %d
+		ORDER BY seq ASC
+	`, div))
+
+	defer query.Close()
+
+	if err != nil {
+		return matches, err
+	}
+
+	for query.Next() {
+
+		var match Match
+
+		if err = query.Scan(&match.Id,&match.Division,&match.Entrant1,&match.Entrant2,&match.Score,&match.Notes,&match.Seq,&match.Start,&match.Updated,&match.Status,&match.Winner); err != nil {
+			return matches, err
+		}
+
+		matches = append(matches, match)
+
+	}
+
+	return matches, nil
+
+}
+
+
+
+
+func (m Match) GetRoundName() string {
+
+	c := int(math.Log2(float64(m.Seq + 1)))
+
+	switch c {
+		case 0:
+			return "Final"
+		case 1:
+			return "Semi Final"
+		case 2:
+			return "Quarter Final"
+		case 3:
+			return "Round of 8"
+		case 4:
+			return "Round of 16"
+		case 5:
+			return "Round of 32"
+		case 6:
+			return "Round of 64"
+		case 7:
+			return "Round of 128"
+	}
+
+	return "That's unpossible"
+
+}
+
+
+func (m Match) GetStatus() string {
+
+	switch m.Status {
+		case int(MatchBlank):
+			return ""
+		case int(MatchReady):
+			return "Upcoming"
+		case int(MatchPlaying):
+			return "On Court"
+		case int(MatchFinished):
+			return "Complete"
+	}
+
+	return ""
+
+}
+
+
+func (m Match) GetStatusSlug() string {
+
+	switch m.Status {
+		case int(MatchBlank):
+			return "status-na"
+		case int(MatchReady):
+			return "status-ready"
+		case int(MatchPlaying):
+			return "status-live"
+		case int(MatchFinished):
+			return "status-done"
+	}
+
+	return ""
 
 }

@@ -1,11 +1,57 @@
 package view
 
 import (
+	"fmt"
+	"math"
+
 	"github.com/wolv89/gotnsapp/model"
 )
 
-templ MatchesView(matches []model.Match) {
+
+templ MatchesView(matches []model.Match, rounds [][]int) {
+
 	<div class="matches" id="matches">
-		<p>Hello there?</p>
+		for r, round := range rounds {
+			<div class={ fmt.Sprintf("round round-of-%v", int(math.Pow(2.0, float64(len(rounds) - r - 1)))) }>
+				for _, m := range round {
+					<div class="match-slot">
+						@MatchView(matches[m])
+					</div>
+				}
+			</div>
+		}
 	</div>
+}
+
+
+templ MatchView(match model.Match) {
+
+	<article class={"match", match.GetStatusSlug()} id={ fmt.Sprintf("match-%d", match.Id) }>
+		<div class="match-header">
+			<h6 class="match-round">{ match.GetRoundName() }</h6>
+			<p class="match-status">{ match.GetStatus() }</p>
+		</div>
+		<div class="match-body">
+			<div class="match-sep">vs</div>
+			<div class="match-entrants">
+				<div class="match-entrant match-entrant-1">
+					@templ.Raw(model.GetEntrantName(match.Entrant1))
+				</div>
+				<div class="match-entrant match-entrant-2">
+					@templ.Raw(model.GetEntrantName(match.Entrant2))
+				</div>
+			</div>
+			<div class="match-score">
+				<p>{ match.Score }</p>
+			</div>
+		</div>
+		<div class="match-footer">
+			if len(match.Notes) > 0 {
+				<div class="match-notes">
+					<p>{ match.Notes }</p>
+				</div>
+			}
+		</div>
+	</article>
+
 }
