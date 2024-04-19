@@ -34,24 +34,35 @@ templ MatchView(match model.Match) {
 		<div class="match-body">
 			<div class="match-sep">vs</div>
 			<div class="match-entrants">
-				<div class="match-entrant match-entrant-1">
+				<div class={"match-entrant", "match-entrant-1", templ.KV("is-winner", match.Winner == 1)}>
 					@templ.Raw(model.GetEntrantName(match.Entrant1))
 				</div>
-				<div class="match-entrant match-entrant-2">
+				<div class={"match-entrant", "match-entrant-2", templ.KV("is-winner", match.Winner == 2)}>
 					@templ.Raw(model.GetEntrantName(match.Entrant2))
 				</div>
 			</div>
 			<div class="match-score">
-				<p>{ match.Score }</p>
+				if len(match.Score) > 0 {
+					<p>{ match.Score }</p>
+				} else {
+					<p class="void">0-0</p>
+				}
 			</div>
 		</div>
-		<div class="match-footer">
-			if len(match.Notes) > 0 {
+		if len(match.Notes) > 0 || len(match.Start) > 0 {
+			<div class="match-footer">
 				<div class="match-notes">
-					<p>{ match.Notes }</p>
+					if len(match.Notes) > 0 {
+						<p>{ match.Notes }</p>
+					}
 				</div>
-			}
-		</div>
+				<div class="match-start">
+					if len(match.Start) > 0 {
+						<p>{ match.Start }</p>
+					}
+				</div>
+			</div>
+		}
 	</article>
 
 }

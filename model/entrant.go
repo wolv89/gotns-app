@@ -18,15 +18,15 @@ type Entrant struct {
 
 
 type NamedEntrant struct {
-	Id int
-	P1Id int
-	P1FirstName string
-	P1LastName string
-	P2Id int
-	P2FirstName string
-	P2LastName string
-	Team bool
-	Seed int
+	Id int					`json:"id"`
+	P1Id int				`json:"p1id"`
+	P1FirstName string		`json:"p1firstname"`
+	P1LastName string		`json:"p1lastname"`
+	P2Id int				`json:"p2id"`
+	P2FirstName string		`json:"p2firstname"`
+	P2LastName string		`json:"p2lastname"`
+	Team bool				`json:"team"`
+	Seed int				`json:"seed"`
 }
 
 
@@ -231,14 +231,13 @@ func GetEntrants(div int) ([]Entrant, error) {
 }
 
 
-
-func GetEntrantName(id int) string {
-
-	if id <= 0 {
-		return "---"
-	}
+func GetNamedEntrant(id int) (NamedEntrant, error) {
 
 	var entrant NamedEntrant
+
+	if id <= 0 {
+		return entrant, errors.New("Bad request")
+	}
 
 	query := db.QueryRow(fmt.Sprintf(`
 		SELECT e.id, e.team, e.seed, p1.id, p1.firstname, p1.lastname, p2.id, p2.firstname, p2.lastname
@@ -251,13 +250,27 @@ func GetEntrantName(id int) string {
 		`, id))
 
 	if query.Err() != nil {
-		return "Unknown player(s)"
+		return entrant, query.Err()
 	}
 
 	query.Scan(&entrant.Id, &entrant.Team, &entrant.Seed, &entrant.P1Id, &entrant.P1FirstName, &entrant.P1LastName, &entrant.P2Id, &entrant.P2FirstName, &entrant.P2LastName)
 
 	if entrant.Id != id {
-		return "Unknown player(s)"
+		return entrant, errors.New("Unable to find")
+	}
+
+	return entrant, nil
+
+}
+
+
+
+func GetEntrantName(id int) string {
+
+	entrant, err := GetNamedEntrant(id)
+
+	if err != nil {
+		return "---"
 	}
 
 	var name strings.Builder

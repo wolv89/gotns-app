@@ -76,6 +76,113 @@ func MatchCreate(div int, e1 int, e2 int, seq int, status MatchStatus) error {
 }
 
 
+func MatchUpdate(mid int, score string, notes string, start string, status int, winner int) error {
+
+	if mid <= 0 {
+		return errors.New("Bad request")
+	}
+
+	query, err := db.Query(fmt.Sprintf(`
+		UPDATE match
+		SET score = "%s", notes = "%s", start = "%s", status = %d, winner = %d
+		WHERE id = %d
+	`, score, notes, start, status, winner, mid))
+
+	defer query.Close()
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+
+
+func GetMatch(mid int) (Match, error) {
+
+	var match Match
+
+	if mid <= 0 {
+		return match, errors.New("No ID provided")
+	}
+
+	query := db.QueryRow(fmt.Sprintf(`SELECT * FROM match WHERE id = %d`, mid))
+
+	if query.Err() != nil {
+		fmt.Println(query.Err().Error())
+		return match, query.Err()
+	}
+
+	if qerr := query.Scan(&match.Id, &match.Division, &match.Entrant1, &match.Entrant2, &match.Score, &match.Notes, &match.Seq, &match.Start, &match.Updated, &match.Status, &match.Winner); qerr != nil {
+		return match, qerr
+	}
+
+	return match, nil
+
+}
+
+
+func GetNextMatch(div int, seq int) (Match, error) {
+
+	var match Match
+
+	if div <= 0 || seq < 0 {
+		return match, errors.New("Bad search")
+	}
+
+	query := db.QueryRow(fmt.Sprintf(`SELECT * FROM match WHERE division = %d AND seq = %d`, div, seq))
+
+	if query.Err() != nil {
+		fmt.Println(query.Err().Error())
+		return match, query.Err()
+	}
+
+	if qerr := query.Scan(&match.Id, &match.Division, &match.Entrant1, &match.Entrant2, &match.Score, &match.Notes, &match.Seq, &match.Start, &match.Updated, &match.Status, &match.Winner); qerr != nil {
+		return match, qerr
+	}
+
+	return match, nil
+
+}
+
+
+func (m *Match) SetEntrant(which int, entrant int) {
+
+	if entrant <= 0 {
+		return
+	}
+
+	target := "entrant1"
+	if which == 2 {
+		target = "entrant2"
+	}
+
+	query, _ := db.Query(fmt.Sprintf(`
+		UPDATE match
+		SET %s = %d
+		WHERE id = %d
+	`, target, entrant, m.Id))
+
+	defer query.Close()
+
+}
+
+
+func (m *Match) SetStatus(status MatchStatus) {
+
+	query, _ := db.Query(fmt.Sprintf(`
+		UPDATE match
+		SET status = %d
+		WHERE id = %d
+	`, int(status), m.Id))
+
+	defer query.Close()
+
+}
+
+
 
 
 func CountMatches(div int) int {
@@ -179,7 +286,7 @@ func (m Match) GetStatus() string {
 		case int(MatchReady):
 			return "Upcoming"
 		case int(MatchPlaying):
-			return "On Court"
+			return "Playing"
 		case int(MatchFinished):
 			return "Complete"
 	}

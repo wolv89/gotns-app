@@ -24,4 +24,8 @@ func LoadAdminRoutes(router *http.ServeMux) {
 	router.HandleFunc("POST /division/{divisionid}/entrants/new", handler.CreateEntrants)
 	router.HandleFunc("POST /division/{divisionid}/matches/new", handler.CreateMatches)
 
+	router.HandleFunc("/match/{matchid}", handler.GetMatch)
+	router.HandleFunc("POST /match/{matchid}/update", handler.UpdateMatch)
+
+
 }
